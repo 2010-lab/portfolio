@@ -1,0 +1,113 @@
+html>
+    <head>
+       <title>My Selfie App</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+<link href="style.css" rel="stylesheet">
+
+</head>
+ 
+<body>
+    <div class="container">
+    <centre>
+        <h1>Voice Selfie App 
+
+        </h1>
+        <hr>
+        <h4 style="color:red;">Please press allow as soon as popup comes. After you give a voice command</h4>
+        
+        <div class="form-group">
+            <h3>Say "take my selfie"</h3>
+            <label>Your voice output : </label>
+
+        </div>
+
+        <p>Press the Start button</p>
+
+        <label>Your webcam : </label>
+
+        <br>
+
+        <label>Your selife Will Display Here: </label>
+
+    </centre>
+    </div>
+
+    <script src="main.js"></scipt>
+
+
+</script>
+
+<!-- -->
+<div id="my_camera"></div>
+<input type=button value="Configure" onClick="configure()">
+<input type=button value="Take Snapshot" onClick="take_snapshot()">
+<input type=button value="Save Snapshot" onClick="saveSnap()">
+
+<div id="results" ></div>
+
+<!-- Script -->
+<script type="text/javascript" src="webcamjs/webcam.min.js"></script>
+
+<!-- Code to handle taking the snapshot and displaying it locally -->
+<script language="JavaScript">
+
+// Configure a few settings and attach camera
+function configure(){
+ Webcam.set({
+  width: 320,
+  height: 240,
+  image_format: 'jpeg',
+  jpeg_quality: 90
+ });
+ Webcam.attach( '#my_camera' );
+}
+// A button for taking snaps
+
+
+// preload shutter audio clip
+var shutter = new Audio();
+shutter.autoplay = false;
+shutter.src = navigator.userAgent.match(/Firefox/) ? 'shutter.ogg' : 'shutter.mp3';
+
+function take_snapshot() {
+ // play sound effect
+ shutter.play();
+
+ // take snapshot and get image data
+ Webcam.snap( function(data_uri) {
+ // display results in page
+ document.getElementById('results').innerHTML = 
+  '<img id="imageprev" src="'+data_uri+'"/>';
+ } );
+
+ Webcam.reset();
+}
+
+function saveSnap(){
+// Get base64 value from <img id='imageprev'> source
+var base64image = document.getElementById("imageprev").src;
+
+Webcam.upload( base64image, 'upload.php', function(code, text) {
+ console.log('Save successfully');
+ //console.log(text);
+});
+<?php
+
+// new filename
+$filename = 'pic_'.date('YmdHis') . '.jpeg';
+
+$url = '';
+if( move_uploaded_file($_FILES['webcam']['tmp_name'],'upload/'.$filename) ){
+ $url = 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']) . '/upload/' . $filename;
+}
+
+// Return image url
+echo $url;
+}
+</script>
+</body>
+</html>
